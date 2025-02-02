@@ -54,6 +54,7 @@ export type ConvertURLArgs = {
   name: string
   d_url: string
   ts?: boolean
+  surl?: string // 添加 surl 属性，并设置为可选
 }
 
 export const convertURL = (scheme: string, args: ConvertURLArgs) => {

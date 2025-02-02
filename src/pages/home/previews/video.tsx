@@ -45,6 +45,11 @@ const Preview = () => {
       )
     }
   }
+  // 提前声明 setSubtitleSurl 和 subtitleSurl
+  const [subtitleSurl, setSubtitleSurl] = createSignal<string | undefined>(
+    undefined,
+  )
+
   let player: Artplayer
   let option: Option = {
     id: pathname(),
@@ -68,9 +73,6 @@ const Preview = () => {
     subtitleOffset: true,
     miniProgressBar: false,
     playsInline: true,
-    // layers: [],
-    // settings: [],
-    // contextmenu: [],
     controls: [
       {
         name: "previous-button",
@@ -94,11 +96,9 @@ const Preview = () => {
       },
     ],
     quality: [],
-    // highlight: [],
     plugins: [AutoHeightPlugin],
     whitelist: [],
     settings: [],
-    // subtitle:{}
     moreVideoAttr: {
       // @ts-ignore
       "webkit-playsinline": true,
@@ -152,7 +152,7 @@ const Preview = () => {
     return false
   })
 
-  // TODO: add a switch in manage panel to choose whether to enable `libass-wasm`
+  // TODO: 在管理面板中添加一个开关，以选择是否启用 `libass-wasm`.
   const enableEnhanceAss = true
 
   if (subtitle.length != 0) {
@@ -176,7 +176,6 @@ const Preview = () => {
       }
     }
 
-    // render subtitle toggle menu
     const innerMenu: Setting[] = [
       {
         id: "setting_subtitle_display",
@@ -222,6 +221,13 @@ const Preview = () => {
         url: proxyLink(item, true),
       })
     })
+
+    // 字幕surl路径
+    const subtitle_surl = option.subtitle?.url
+    // 打印 subtitle_surl 到控制台
+    setSubtitleSurl(subtitle_surl)
+    // 打印 subtitle_surl 到控制台
+    console.log(subtitle_surl)
 
     option.settings?.push({
       id: "setting_subtitle",
@@ -291,6 +297,7 @@ const Preview = () => {
       }),
     )
   }
+
   onMount(() => {
     player = new Artplayer(option)
     let auto_fullscreen: boolean
@@ -304,19 +311,25 @@ const Preview = () => {
     }
     player.on("ready", () => {
       player.fullscreen = auto_fullscreen
+      // 确保 subtitleSurl 在组件挂载后被正确设置
+      setSubtitleSurl(option.subtitle?.url)
+      console.log(option.subtitle?.url)
     })
     player.on("video:ended", () => {
       if (!autoNext()) return
       next_video()
     })
   })
+
   onCleanup(() => {
     if (player && player.video) player.video.src = ""
     player?.destroy()
   })
+
   const [autoNext, setAutoNext] = createSignal()
+
   return (
-    <VideoBox onAutoNextChange={setAutoNext}>
+    <VideoBox onAutoNextChange={setAutoNext} surl={subtitleSurl()}>
       <Box w="$full" h="60vh" id="video-player" />
     </VideoBox>
   )

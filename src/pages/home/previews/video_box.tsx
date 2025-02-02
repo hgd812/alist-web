@@ -56,8 +56,8 @@ export const players: { icon: string; name: string; scheme: string }[] = [
   },
   {
     icon: "iPlay",
-    name: "iPlay",
-    scheme: "iplay://play/any?type=url&url=$bdurl",
+    name: "你好",
+    scheme: "http://142.171.133.121:2222/index.html?url=$durl", // iPlay播放器
   },
 ]
 
@@ -84,6 +84,7 @@ export const AutoHeightPlugin = (player: Artplayer) => {
 export const VideoBox = (props: {
   children: JSXElement
   onAutoNextChange: (v: boolean) => void
+  surl: string | undefined
 }) => {
   const { replace } = useRouter()
   const { currentObjLink } = useLink()
@@ -97,6 +98,15 @@ export const VideoBox = (props: {
     autoNext = "true"
   }
   props.onAutoNextChange(autoNext === "true")
+
+  const surl123 = props.surl
+  console.log("Current Obj Link:", currentObjLink(true))
+  console.log("SURL123:", surl123)
+
+  // 将 surl123 的值赋给 test
+  const test = surl123
+  const encodedTest = encodeURIComponent(test || "")
+
   return (
     <VStack w="$full" spacing="$2">
       {props.children}
@@ -127,11 +137,14 @@ export const VideoBox = (props: {
       <Flex wrap="wrap" gap="$1" justifyContent="center">
         <For each={players}>
           {(item) => {
+            let scheme = item.scheme
+            if (item.name === "你好") {
+              scheme = `${scheme}&surl=${encodeURIComponent(surl123 || "")}`
+            }
             return (
               <Tooltip placement="top" withArrow label={item.name}>
                 <Anchor
-                  // external
-                  href={convertURL(item.scheme, {
+                  href={convertURL(scheme, {
                     raw_url: objStore.raw_url,
                     name: objStore.obj.name,
                     d_url: currentObjLink(true),
